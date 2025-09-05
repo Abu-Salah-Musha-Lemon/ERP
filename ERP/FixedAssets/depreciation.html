@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERP - Depreciation</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <!-- Toastr -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fa;
+    }
+
+    .sidebar {
+      min-height: 100vh;
+      background: #343a40;
+      color: #fff;
+      position: fixed;
+      width: 240px;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .sidebar a {
+      color: #ddd;
+      text-decoration: none;
+      padding: 10px 15px;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      background: #495057;
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        left: -240px;
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebarMenu">
+    <div class="p-3">
+      <h4 class="text-white mb-4">ERP System</h4>
+      <a href="#"><i class="fa fa-home me-2"></i> Dashboard</a>
+      <a class="dropdown-toggle" data-bs-toggle="collapse" href="#assetMenu">
+        <i class="fa fa-briefcase me-2"></i> Fixed Assets
+      </a>
+      <div class="collapse show" id="assetMenu">
+        <a href="asset-register.html" class="ms-4">Asset Register</a>
+        <a href="depreciation.html" class="ms-4 text-white fw-bold">Depreciation</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content">
+    <button class="btn btn-dark d-md-none mb-3" id="toggleSidebar">
+      <i class="fa fa-bars"></i>
+    </button>
+
+    <h4 class="mb-4">Asset Depreciation</h4>
+
+    <!-- Form -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <form id="depreciationForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Asset Name *</label>
+              <select class="form-select" id="assetName" required>
+                <option value="">Select Asset</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Printer">Printer</option>
+                <option value="Furniture">Office Furniture</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Purchase Cost ($)*</label>
+              <input type="number" id="cost" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Useful Life (Years) *</label>
+              <input type="number" id="usefulLife" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Depreciation Method *</label>
+              <select class="form-select" id="method" required>
+                <option value="straight">Straight-Line</option>
+                <!-- Other methods can be added -->
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Start Date *</label>
+              <input type="date" id="startDate" class="form-control" required />
+            </div>
+            <div class="col-12 mt-2">
+              <button type="submit" class="btn btn-primary w-100 w-md-auto">Calculate Depreciation</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Depreciation Schedule</h5>
+        <table class="table table-bordered mt-3">
+          <thead class="table-dark">
+            <tr>
+              <th>Year</th>
+              <th>Depreciation ($)</th>
+              <th>Accumulated ($)</th>
+              <th>Book Value ($)</th>
+            </tr>
+          </thead>
+          <tbody id="depreciationTable">
+            <!-- Dynamically generated rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $("#toggleSidebar").click(function () {
+        $("#sidebarMenu").toggleClass("active");
+      });
+
+      toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        timeOut: "3000",
+      };
+
+      $("#depreciationForm").submit(function (e) {
+        e.preventDefault();
+
+        const asset = $("#assetName").val();
+        const cost = parseFloat($("#cost").val());
+        const years = parseInt($("#usefulLife").val());
+        const startDate = new Date($("#startDate").val());
+
+        if (!asset || !cost || !years || isNaN(startDate.getTime())) {
+          toastr.error("Please fill all required fields correctly.");
+          return;
+        }
+
+        const annualDep = (cost / years).toFixed(2);
+        let tableHtml = "";
+        let accDep = 0;
+        let bookValue = cost;
+
+        for (let i = 1; i <= years; i++) {
+          accDep += parseFloat(annualDep);
+          bookValue = (cost - accDep).toFixed(2);
+          const year = startDate.getFullYear() + i - 1;
+
+          tableHtml += `
+          <tr>
+            <td>${year}</td>
+            <td>${annualDep}</td>
+            <td>${accDep.toFixed(2)}</td>
+            <td>${bookValue}</td>
+          </tr>
+        `;
+        }
+
+        $("#depreciationTable").html(tableHtml);
+        toastr.success("Depreciation schedule generated.");
+      });
+    });
+  </script>
+
+</body>
+
+</html>

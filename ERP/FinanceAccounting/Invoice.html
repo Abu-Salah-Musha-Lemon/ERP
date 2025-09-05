@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invoices Management</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <style>
+    body {
+      background-color: #f5f7fa;
+    }
+    .invoice-form {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .table-responsive {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .remove-row-btn {
+      cursor: pointer;
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="mb-4">Create New Invoice</h2>
+
+    <form id="invoiceForm" class="invoice-form">
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="invoiceNumber" class="form-label">Invoice Number *</label>
+          <input type="text" class="form-control" id="invoiceNumber" placeholder="INV-1001" required />
+        </div>
+        <div class="col-md-4">
+          <label for="invoiceDate" class="form-label">Invoice Date *</label>
+          <input type="date" class="form-control" id="invoiceDate" required />
+        </div>
+        <div class="col-md-4">
+          <label for="dueDate" class="form-label">Due Date *</label>
+          <input type="date" class="form-control" id="dueDate" required />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="clientName" class="form-label">Client Name *</label>
+        <input type="text" class="form-control" id="clientName" placeholder="Client or Company Name" required />
+      </div>
+
+      <!-- Invoice Items Table -->
+      <h5>Invoice Items</h5>
+      <div class="table-responsive mb-3">
+        <table class="table table-bordered align-middle" id="itemsTable">
+          <thead class="table-light">
+            <tr>
+              <th>Description *</th>
+              <th style="width: 100px;">Quantity *</th>
+              <th style="width: 120px;">Rate ($) *</th>
+              <th style="width: 140px;">Amount ($)</th>
+              <th style="width: 50px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="form-control description" required /></td>
+              <td><input type="number" class="form-control quantity" min="1" value="1" required /></td>
+              <td><input type="number" class="form-control rate" min="0" step="0.01" value="0" required /></td>
+              <td class="amount">$0.00</td>
+              <td><span class="remove-row-btn" title="Remove Row">&times;</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary mb-3" id="addItemBtn">+ Add Item</button>
+
+      <!-- Summary -->
+      <div class="row mb-4 justify-content-end">
+        <div class="col-md-4">
+          <div class="d-flex justify-content-between">
+            <span>Subtotal:</span>
+            <span id="subtotalAmount">$0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <label for="taxPercent" class="mb-0">Tax (%)</label>
+            <input type="number" id="taxPercent" class="form-control form-control-sm w-25" value="0" min="0" step="0.01" />
+          </div>
+          <div class="d-flex justify-content-between mt-2 fw-bold">
+            <span>Total:</span>
+            <span id="totalAmount">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="status" class="form-label">Status *</label>
+        <select id="status" class="form-select" required>
+          <option value="Unpaid" selected>Unpaid</option>
+          <option value="Paid">Paid</option>
+          <option value="Overdue">Overdue</option>
+          <option value="Draft">Draft</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea id="notes" class="form-control" rows="3" placeholder="Optional additional information"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Invoice</button>
+    </form>
+
+    <!-- Invoice List (Optional, for demo) -->
+    <hr class="my-5" />
+    <h3>Invoices List (Demo)</h3>
+    <div class="table-responsive">
+      <table class="table table-striped" id="invoiceList">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Client</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Toastr JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      // Calculate amount per row and update totals
+      function updateAmounts() {
+        let subtotal = 0;
+        $('#itemsTable tbody tr').each(function () {
+          const qty = parseFloat($(this).find('.quantity').val()) || 0;
+          const rate = parseFloat($(this).find('.rate').val()) || 0;
+          const amount = qty * rate;
+          $(this).find('.amount').text('$' + amount.toFixed(2));
+          subtotal += amount;
+        });
+
+        $('#subtotalAmount').text('$' + subtotal.toFixed(2));
+
+        const taxPercent = parseFloat($('#taxPercent').val()) || 0;
+        const taxAmount = subtotal * taxPercent / 100;
+        const total = subtotal + taxAmount;
+        $('#totalAmount').text('$' + total.toFixed(2));
+      }
+
+      // Initial calculation
+      updateAmounts();
+
+      // On quantity, rate, or tax change recalc totals
+      $('#itemsTable').on('input', '.quantity, .rate', updateAmounts);
+      $('#taxPercent').on('input', updateAmounts);
+
+      // Add new item row
+      $('#addItemBtn').click(function () {
+        const newRow = `<tr>
+          <td><input type="text" class="form-control description" required /></td>
+          <td><input type="number" class="form-control quantity" min="1" value="1" required /></td>
+          <td><input type="number" class="form-control rate" min="0" step="0.01" value="0" required /></td>
+          <td class="amount">$0.00</td>
+          <td><span class="remove-row-btn" title="Remove Row">&times;</span></td>
+        </tr>`;
+        $('#itemsTable tbody').append(newRow);
+      });
+
+      // Remove item row
+      $('#itemsTable').on('click', '.remove-row-btn', function () {
+        if ($('#itemsTable tbody tr').length > 1) {
+          $(this).closest('tr').remove();
+          updateAmounts();
+        } else {
+          toastr.warning('Invoice must have at least one item.');
+        }
+      });
+
+      // Handle form submit
+      $('#invoiceForm').submit(function (e) {
+        e.preventDefault();
+
+        // Basic validation for required fields
+        const invoiceNumber = $('#invoiceNumber').val().trim();
+        const invoiceDate = $('#invoiceDate').val();
+        const dueDate = $('#dueDate').val();
+        const clientName = $('#clientName').val().trim();
+        const status = $('#status').val();
+
+        if (!invoiceNumber || !invoiceDate || !dueDate || !clientName || !status) {
+          toastr.error('Please fill all required fields.');
+          return;
+        }
+
+        // Validate items
+        let validItems = true;
+        $('#itemsTable tbody tr').each(function () {
+          const desc = $(this).find('.description').val().trim();
+          const qty = $(this).find('.quantity').val();
+          const rate = $(this).find('.rate').val();
+          if (!desc || qty <= 0 || rate < 0) {
+            validItems = false;
+            return false; // break loop
+          }
+        });
+
+        if (!validItems) {
+          toastr.error('Please fill all item fields correctly.');
+          return;
+        }
+
+        // Create invoice object (simulate saving)
+        const items = [];
+        $('#itemsTable tbody tr').each(function () {
+          items.push({
+            description: $(this).find('.description').val().trim(),
+            quantity: parseInt($(this).find('.quantity').val()),
+            rate: parseFloat($(this).find('.rate').val()),
+            amount: parseFloat($(this).find('.quantity').val()) * parseFloat($(this).find('.rate').val())
+          });
+        });
+
+        const subtotalText = $('#subtotalAmount').text();
+        const totalText = $('#totalAmount').text();
+
+        // Add to invoice list table (demo)
+        const row = `<tr>
+          <td>${invoiceNumber}</td>
+          <td>${clientName}</td>
+          <td>${invoiceDate}</td>
+          <td>${dueDate}</td>
+          <td>${status}</td>
+          <td>${totalText}</td>
+        </tr>`;
+        $('#invoiceList tbody').append(row);
+
+        toastr.success('Invoice saved successfully!');
+
+        // Reset form
+        this.reset();
+        $('#itemsTable tbody').html(`
+          <tr>
+            <td><input type="text" class="form-control description" required /></td>
+            <td><input type="number" class="form-control quantity" min="1" value="1" required /></td>
+            <td><input type="number" class="form-control rate" min="0" step="0.01" value="0" required /></td>
+            <td class="amount">$0.00</td>
+            <td><span class="remove-row-btn" title="Remove Row">&times;</span></td>
+          </tr>
+        `);
+        updateAmounts();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accounts Management</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <style>
+    body {
+      background-color: #f5f7fa;
+    }
+    .account-form {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="mb-4">Add New Account</h2>
+
+    <form id="accountForm" class="account-form">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="accountName" class="form-label">Account Name *</label>
+          <input type="text" class="form-control" id="accountName" placeholder="e.g., Bank of America Checking" required />
+        </div>
+        <div class="col-md-6">
+          <label for="accountType" class="form-label">Account Type *</label>
+          <select class="form-select" id="accountType" required>
+            <option value="" disabled selected>Select account type</option>
+            <option value="Bank">Bank</option>
+            <option value="Cash">Cash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Loan">Loan</option>
+            <option value="Investment">Investment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="accountNumber" class="form-label">Account Number</label>
+          <input type="text" class="form-control" id="accountNumber" placeholder="Optional" />
+        </div>
+        <div class="col-md-6">
+          <label for="currency" class="form-label">Currency *</label>
+          <select class="form-select" id="currency" required>
+            <option value="" disabled selected>Select currency</option>
+            <option value="USD">USD - US Dollar</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - British Pound</option>
+            <option value="JPY">JPY - Japanese Yen</option>
+            <option value="AUD">AUD - Australian Dollar</option>
+            <option value="CAD">CAD - Canadian Dollar</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="openingBalance" class="form-label">Opening Balance *</label>
+        <input type="number" class="form-control" id="openingBalance" min="0" step="0.01" placeholder="0.00" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea id="notes" class="form-control" rows="3" placeholder="Optional additional info"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add Account</button>
+    </form>
+
+    <!-- Accounts List -->
+    <hr class="my-5" />
+    <h3>Accounts List (Demo)</h3>
+    <div class="table-responsive">
+      <table class="table table-striped" id="accountsList">
+        <thead>
+          <tr>
+            <th>Account Name</th>
+            <th>Type</th>
+            <th>Account Number</th>
+            <th>Currency</th>
+            <th>Opening Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Toastr JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#accountForm').submit(function (e) {
+        e.preventDefault();
+
+        const accountName = $('#accountName').val().trim();
+        const accountType = $('#accountType').val();
+        const accountNumber = $('#accountNumber').val().trim();
+        const currency = $('#currency').val();
+        const openingBalance = parseFloat($('#openingBalance').val());
+
+        if (!accountName || !accountType || !currency || isNaN(openingBalance) || openingBalance < 0) {
+          toastr.error('Please fill all required fields correctly.');
+          return;
+        }
+
+        const notes = $('#notes').val().trim();
+
+        const newRow = `<tr>
+          <td>${accountName}</td>
+          <td>${accountType}</td>
+          <td>${accountNumber || '-'}</td>
+          <td>${currency}</td>
+          <td>${openingBalance.toFixed(2)}</td>
+        </tr>`;
+
+        $('#accountsList tbody').append(newRow);
+
+        toastr.success('Account added successfully!');
+
+        this.reset();
+      });
+    });
+  </script>
+</body>
+</html>

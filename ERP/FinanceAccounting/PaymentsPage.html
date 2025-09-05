@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payments Management</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <style>
+    body {
+      background-color: #f5f7fa;
+    }
+    .payment-form {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="mb-4">Record a Payment</h2>
+
+    <form id="paymentForm" class="payment-form">
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="paymentId" class="form-label">Payment ID *</label>
+          <input type="text" class="form-control" id="paymentId" placeholder="PAY-1001" required />
+        </div>
+        <div class="col-md-4">
+          <label for="invoiceNumber" class="form-label">Invoice Number *</label>
+          <input type="text" class="form-control" id="invoiceNumber" placeholder="INV-1001" required />
+        </div>
+        <div class="col-md-4">
+          <label for="paymentDate" class="form-label">Payment Date *</label>
+          <input type="date" class="form-control" id="paymentDate" required />
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="amount" class="form-label">Amount ($) *</label>
+          <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="0.00" required />
+        </div>
+        <div class="col-md-4">
+          <label for="paymentMethod" class="form-label">Payment Method *</label>
+          <select class="form-select" id="paymentMethod" required>
+            <option value="" disabled selected>Select method</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Cash">Cash</option>
+            <option value="Check">Check</option>
+            <option value="Paypal">Paypal</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="transactionId" class="form-label">Transaction ID / Reference</label>
+          <input type="text" class="form-control" id="transactionId" placeholder="Optional" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea id="notes" class="form-control" rows="3" placeholder="Optional additional information"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Payment</button>
+    </form>
+
+    <!-- Payments List -->
+    <hr class="my-5" />
+    <h3>Payments List (Demo)</h3>
+    <div class="table-responsive">
+      <table class="table table-striped" id="paymentsList">
+        <thead>
+          <tr>
+            <th>Payment ID</th>
+            <th>Invoice #</th>
+            <th>Payment Date</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Transaction ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Toastr JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#paymentForm').submit(function (e) {
+        e.preventDefault();
+
+        // Basic validation
+        const paymentId = $('#paymentId').val().trim();
+        const invoiceNumber = $('#invoiceNumber').val().trim();
+        const paymentDate = $('#paymentDate').val();
+        const amount = parseFloat($('#amount').val());
+        const paymentMethod = $('#paymentMethod').val();
+
+        if (!paymentId || !invoiceNumber || !paymentDate || !amount || amount <= 0 || !paymentMethod) {
+          toastr.error('Please fill all required fields correctly.');
+          return;
+        }
+
+        const transactionId = $('#transactionId').val().trim();
+        const notes = $('#notes').val().trim();
+
+        // Add payment to list (demo)
+        const newRow = `<tr>
+          <td>${paymentId}</td>
+          <td>${invoiceNumber}</td>
+          <td>${paymentDate}</td>
+          <td>$${amount.toFixed(2)}</td>
+          <td>${paymentMethod}</td>
+          <td>${transactionId || '-'}</td>
+        </tr>`;
+
+        $('#paymentsList tbody').append(newRow);
+
+        toastr.success('Payment recorded successfully!');
+
+        // Reset form
+        this.reset();
+      });
+    });
+  </script>
+</body>
+</html>
