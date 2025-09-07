@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ERP - Attendance</title>
 
   <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
   <!-- Toastr -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
 
   <style>
     body {
@@ -65,140 +66,141 @@
     }
   </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<nav class="sidebar" id="sidebarMenu">
-  <div class="p-3">
-    <h4 class="text-white mb-4">ERP System</h4>
-    <a href="#"><i class="fa fa-home me-2"></i> Dashboard</a>
-    <a class="dropdown-toggle" data-bs-toggle="collapse" href="#hrMenu">
-      <i class="fa fa-users me-2"></i> HR & Payroll
-    </a>
-    <div class="collapse show" id="hrMenu">
-      <a href="employee.html" class="ms-4">Employees</a>
-      <a href="attendance.html" class="ms-4 text-white fw-bold">Attendance</a>
-      <a href="payroll.html" class="ms-4">Payroll</a>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebarMenu">
+    <div class="p-3">
+      <h4 class="text-white mb-4">ERP System</h4>
+      <a href="#"><i class="fa fa-home me-2"></i> Dashboard</a>
+      <a class="dropdown-toggle" data-bs-toggle="collapse" href="#hrMenu">
+        <i class="fa fa-users me-2"></i> HR & Payroll
+      </a>
+      <div class="collapse show" id="hrMenu">
+        <a href="employee.html" class="ms-4">Employees</a>
+        <a href="attendance.html" class="ms-4 text-white fw-bold">Attendance</a>
+        <a href="payroll.html" class="ms-4">Payroll</a>
+      </div>
+      <!-- Add more sidebar items here -->
     </div>
-    <!-- Add more sidebar items here -->
-  </div>
-</nav>
+  </nav>
 
-<!-- Main Content -->
-<main class="content">
-  <!-- Top bar with hamburger -->
-  <header class="d-flex justify-content-between align-items-center mb-4">
-    <button class="btn btn-dark d-md-none" id="toggleSidebar">
-      <i class="fa fa-bars"></i>
-    </button>
-    <h4 class="mb-0">Attendance Management</h4>
-  </header>
+  <!-- Main Content -->
+  <main class="content">
+    <!-- Top bar with hamburger -->
+    <header class="d-flex justify-content-between align-items-center mb-4">
+      <button class="btn btn-dark d-md-none" id="toggleSidebar">
+        <i class="fa fa-bars"></i>
+      </button>
+      <h4 class="mb-0">Attendance Management</h4>
+    </header>
 
-  <!-- Attendance Form -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <h5 class="mb-4">Mark Attendance</h5>
-      <form id="attendanceForm">
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label for="employeeName" class="form-label">Employee *</label>
-            <select class="form-select" id="employeeName" required>
-              <option value="">Select</option>
-              <option>John Doe</option>
-              <option>Jane Smith</option>
-              <option>Mike Johnson</option>
-            </select>
+    <!-- Attendance Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="mb-4">Mark Attendance</h5>
+        <form id="attendanceForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="employeeName" class="form-label">Employee *</label>
+              <select class="form-select" id="employeeName" required>
+                <option value="">Select</option>
+                <option>John Doe</option>
+                <option>Jane Smith</option>
+                <option>Mike Johnson</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label for="date" class="form-label">Date *</label>
+              <input type="date" class="form-control" id="date" required />
+            </div>
+
+            <div class="col-md-4">
+              <label for="status" class="form-label">Status *</label>
+              <select class="form-select" id="status" required>
+                <option value="">Select</option>
+                <option>Present</option>
+                <option>Absent</option>
+                <option>On Leave</option>
+              </select>
+            </div>
+
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary w-100 w-md-auto">Mark Attendance</button>
+            </div>
           </div>
-
-          <div class="col-md-4">
-            <label for="date" class="form-label">Date *</label>
-            <input type="date" class="form-control" id="date" required />
-          </div>
-
-          <div class="col-md-4">
-            <label for="status" class="form-label">Status *</label>
-            <select class="form-select" id="status" required>
-              <option value="">Select</option>
-              <option>Present</option>
-              <option>Absent</option>
-              <option>On Leave</option>
-            </select>
-          </div>
-
-          <div class="col-12 mt-3">
-            <button type="submit" class="btn btn-primary w-100 w-md-auto">Mark Attendance</button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Attendance History -->
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h5 class="mb-4">Attendance History</h5>
-      <table class="table table-striped">
-        <thead class="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Employee</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="attendanceHistory">
-          <tr>
-            <td>1</td>
-            <td>John Doe</td>
-            <td>2025-09-01</td>
-            <td><span class="badge bg-success">Present</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Attendance History -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-4">Attendance History</h5>
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Employee</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceHistory">
+            <tr>
+              <td>1</td>
+              <td>John Doe</td>
+              <td>2025-09-01</td>
+              <td><span class="badge bg-success">Present</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-<script>
-  $(document).ready(function () {
-    // Sidebar toggle
-    $("#toggleSidebar").on("click", function () {
-      $("#sidebarMenu").toggleClass("active");
-    });
+  <script>
+    $(document).ready(function () {
+      // Sidebar toggle
+      $("#toggleSidebar").on("click", function () {
+        $("#sidebarMenu").toggleClass("active");
+      });
 
-    // Toastr config
-    toastr.options = {
-      closeButton: true,
-      progressBar: true,
-      positionClass: "toast-top-right",
-      timeOut: "3000"
-    };
+      // Toastr config
+      toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        timeOut: "3000"
+      };
 
-    // Attendance form submit
-    $("#attendanceForm").on("submit", function (e) {
-      e.preventDefault();
+      // Attendance form submit
+      $("#attendanceForm").on("submit", function (e) {
+        e.preventDefault();
 
-      const name = $("#employeeName").val();
-      const date = $("#date").val();
-      const status = $("#status").val();
+        const name = $("#employeeName").val();
+        const date = $("#date").val();
+        const status = $("#status").val();
 
-      if (!name || !date || !status) {
-        toastr.error("Please fill all required fields.", "Error");
-        return;
-      }
+        if (!name || !date || !status) {
+          toastr.error("Please fill all required fields.", "Error");
+          return;
+        }
 
-      const count = $("#attendanceHistory tr").length + 1;
-      let badgeClass = "bg-secondary";
-      if (status === "Present") badgeClass = "bg-success";
-      else if (status === "Absent") badgeClass = "bg-danger";
-      else if (status === "On Leave") badgeClass = "bg-warning text-dark";
+        const count = $("#attendanceHistory tr").length + 1;
+        let badgeClass = "bg-secondary";
+        if (status === "Present") badgeClass = "bg-success";
+        else if (status === "Absent") badgeClass = "bg-danger";
+        else if (status === "On Leave") badgeClass = "bg-warning text-dark";
 
-      const newRow = `
+        const newRow = `
         <tr>
           <td>${count}</td>
           <td>${name}</td>
@@ -207,11 +209,12 @@
         </tr>
       `;
 
-      $("#attendanceHistory").append(newRow);
-      toastr.success(`Attendance marked for ${name}`, "Success");
-      this.reset();
+        $("#attendanceHistory").append(newRow);
+        toastr.success(`Attendance marked for ${name}`, "Success");
+        this.reset();
+      });
     });
-  });
-</script>
+  </script>
 </body>
+
 </html>
